@@ -15,6 +15,12 @@ import secrets
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
+# Production configuration
+if os.environ.get('VERCEL'):
+    app.config['DEBUG'] = False
+else:
+    app.config['DEBUG'] = True
+
 class ExerciseTracker:
     def __init__(self):
         self.exercises_file = "exercises_data.json"
@@ -436,6 +442,27 @@ def format_duration(minutes):
 def safe_sum(values):
     """Safely sum a list of values"""
     try:
+        if not values:
+            return 0
+        return sum(float(v) for v in values if v and str(v).strip())
+    except (TypeError, ValueError):
+        return 0
+
+@app.template_filter('safe_max')
+def safe_max(values):
+    """Safely get max from a list of values"""
+    try:
+        if not values:
+            return 0
+        valid_values = [float(v) for v in values if v and str(v).strip()]
+        return max(valid_values) if valid_values else 0
+    except (TypeError, ValueError):
+        return 0
+
+@app.template_filter('safe_sum')
+def safe_sum(values):
+    """Safely sum a list of values"""
+    try:
         return sum(float(v) for v in values if v)
     except:
         return 0
@@ -450,7 +477,8 @@ def safe_max(values):
         return 0
 
 # Initialize sample data on startup
-init_sample_exercises()
+if not os.path.exists('exercises_data.json') or os.path.getsize('exercises_data.json') == 0:
+    init_sample_exercises()
 
 if __name__ == '__main__':
     print("Starting Exercise Tracker Web Application...")

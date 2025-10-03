@@ -1,0 +1,55 @@
+{% extends "exercise_base.html" %}{% extends "base.html" %}
+
+
+
+{% block title %}500 - Server Error{% endblock %}{% block title %}500 - Server Error{% endblock %}
+
+
+
+{% block content %}{% block content %}
+
+<div class="row justify-content-center"><div class="row justify-content-center">
+
+    <div class="col-lg-6">    <div class="col-lg-6">
+
+        <div class="text-center py-5">        <div class="calculator-container p-5 text-center">
+
+            <div class="mb-4">            <div class="mb-4">
+
+                <i class="fas fa-server text-danger" style="font-size: 4rem;"></i>                <i class="fas fa-server text-danger" style="font-size: 4rem;"></i>
+
+            </div>            </div>
+
+            <h1 class="display-4 text-danger">500</h1>            <h1 class="display-4 text-danger">500</h1>
+
+            <h2>Server Error</h2>            <h2>Server Error</h2>
+
+            <p class="lead text-muted">            <p class="lead text-muted">
+
+                Something went wrong on our server. Please try again later.                Something went wrong on our server. Please try again later.
+
+            </p>            </p>
+
+            <div class="mt-4">            <div class="mt-4">
+
+                <a href="{{ url_for('index') }}" class="btn btn-gradient btn-lg">                <a href="/" class="btn btn-primary btn-lg">
+
+                    <i class="fas fa-home"></i> Go to Dashboard                    <i class="fas fa-home"></i> Go to Calculator
+
+                </a>                </a>
+
+                <button class="btn btn-outline-secondary btn-lg ms-2" onclick="location.reload()">                <button class="btn btn-outline-secondary btn-lg ms-2" onclick="location.reload()">
+
+                    <i class="fas fa-sync"></i> Retry                    <i class="fas fa-sync"></i> Retry
+
+                </button>                </button>
+
+            </div>            </div>
+
+        </div>        </div>
+
+    </div>    </div>
+
+</div></div>
+
+{% endblock %}{% endblock %}
