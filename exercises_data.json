@@ -1,0 +1,52 @@
+[
+  {
+    "id": "5d1db6b6-8fdd-4d1a-b65f-b30735953d3f",
+    "name": "Push-ups",
+    "category": "Strength",
+    "muscle_group": "Chest",
+    "equipment": "None",
+    "instructions": "Start in plank position, lower body to ground, push back up",
+    "difficulty": "Beginner",
+    "created_at": "2025-10-03T21:50:08.813476"
+  },
+  {
+    "id": "835cf798-a7a0-4cda-a532-3d6fed837f78",
+    "name": "Squats",
+    "category": "Strength",
+    "muscle_group": "Legs",
+    "equipment": "None",
+    "instructions": "Stand with feet hip-width apart, lower hips back and down",
+    "difficulty": "Beginner",
+    "created_at": "2025-10-03T21:50:08.822236"
+  },
+  {
+    "id": "2d66873b-9fd1-4ae4-ad1b-5569dea0c5a5",
+    "name": "Running",
+    "category": "Cardio",
+    "muscle_group": "Full Body",
+    "equipment": "None",
+    "instructions": "Maintain steady pace, breathe rhythmically",
+    "difficulty": "Intermediate",
+    "created_at": "2025-10-03T21:50:08.829539"
+  },
+  {
+    "id": "36ad7766-aa60-4d0b-b1f0-913d5541a41c",
+    "name": "Deadlift",
+    "category": "Strength",
+    "muscle_group": "Back",
+    "equipment": "Barbell",
+    "instructions": "Lift barbell from ground to hip level, keep back straight",
+    "difficulty": "Advanced",
+    "created_at": "2025-10-03T21:50:08.837008"
+  },
+  {
+    "id": "c9df51a9-a954-44c8-bda2-8c68e58aa78e",
+    "name": "Plank",
+    "category": "Core",
+    "muscle_group": "Core",
+    "equipment": "None",
+    "instructions": "Hold plank position, keep body straight",
+    "difficulty": "Intermediate",
+    "created_at": "2025-10-03T21:50:08.851825"
+  }
+]

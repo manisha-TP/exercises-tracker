@@ -1,0 +1,170 @@
+{% extends "exercise_base.html" %}
+
+{% block title %}Workout Details - Exercise Tracker{% endblock %}
+
+{% block content %}
+<div class="animation-fadeIn">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">
+                <i class="fas fa-dumbbell text-primary"></i> Workout Details
+            </h1>
+            <p class="text-muted">{{ workout.date | format_date }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('workouts') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to History
+            </a>
+        </div>
+    </div>
+
+    <!-- Workout Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">{{ workout.exercises | length }}</div>
+                <div class="stats-label">
+                    <i class="fas fa-list"></i> Exercises
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card" style="background: var(--success-gradient);">
+                <div class="stats-number">{{ workout.duration | format_duration }}</div>
+                <div class="stats-label">
+                    <i class="fas fa-clock"></i> Duration
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card" style="background: var(--warning-gradient);">
+                {% set total_sets = workout.exercises | sum(attribute='sets') %}
+                <div class="stats-number">{{ total_sets }}</div>
+                <div class="stats-label">
+                    <i class="fas fa-repeat"></i> Total Sets
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stats-card" style="background: var(--info-gradient);">
+                {% set total_reps = 0 %}
+                {% for exercise in workout.exercises %}
+                    {% set total_reps = total_reps + (exercise.reps | safe_sum) %}
+                {% endfor %}
+                <div class="stats-number">{{ total_reps }}</div>
+                <div class="stats-label">
+                    <i class="fas fa-redo"></i> Total Reps
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise Details -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-check"></i> Exercise Breakdown
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for exercise in workout.exercises %}
+                        <div class="exercise-item mb-4 p-3 border rounded">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="mb-2">{{ exercise.exercise_name }}</h6>
+                                    {% if exercise.exercise_details %}
+                                        <div class="mb-2">
+                                            <span class="badge badge-custom me-1">
+                                                {{ exercise.exercise_details.category }}
+                                            </span>
+                                            <span class="badge badge-custom">
+                                                {{ exercise.exercise_details.muscle_group }}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if exercise.notes %}
+                                        <p class="text-muted mb-0">
+                                            <i class="fas fa-sticky-note"></i> {{ exercise.notes }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <div class="fw-bold text-primary">{{ exercise.sets }}</div>
+                                            <small class="text-muted">Sets</small>
+                                        </div>
+                                        {% if exercise.reps %}
+                                            <div class="col-6">
+                                                <div class="fw-bold text-success">{{ exercise.reps | safe_sum }}</div>
+                                                <small class="text-muted">Total Reps</small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Detailed breakdown -->
+                            <div class="mt-3">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Set</th>
+                                                {% if exercise.reps %}<th>Reps</th>{% endif %}
+                                                {% if exercise.weight %}<th>Weight (kg)</th>{% endif %}
+                                                {% if exercise.duration %}<th>Duration</th>{% endif %}
+                                                {% if exercise.distance %}<th>Distance (km)</th>{% endif %}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for i in range(exercise.sets) %}
+                                                <tr>
+                                                    <td>{{ i + 1 }}</td>
+                                                    {% if exercise.reps %}
+                                                        <td>{{ exercise.reps[i] if i < exercise.reps | length else '-' }}</td>
+                                                    {% endif %}
+                                                    {% if exercise.weight %}
+                                                        <td>{{ exercise.weight[i] if i < exercise.weight | length else '-' }}</td>
+                                                    {% endif %}
+                                                    {% if exercise.duration %}
+                                                        <td>{{ exercise.duration }} min</td>
+                                                    {% endif %}
+                                                    {% if exercise.distance %}
+                                                        <td>{{ exercise.distance }} km</td>
+                                                    {% endif %}
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workout Notes -->
+    {% if workout.notes %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-sticky-note"></i> Workout Notes
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ workout.notes }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
