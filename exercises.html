@@ -1,0 +1,291 @@
+{% extends "exercise_base.html" %}
+
+{% block title %}Exercise Library - Exercise Tracker{% endblock %}
+
+{% block content %}
+<div class="animation-fadeIn">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6">
+                <i class="fas fa-list text-primary"></i> Exercise Library
+            </h1>
+            <p class="text-muted">Discover and manage your exercises</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('add_exercise') }}" class="btn btn-gradient">
+                <i class="fas fa-plus"></i> Add New Exercise
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('exercises') }}">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="category" class="form-label">Category</label>
+                        <select name="category" id="category" class="form-select">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                                <option value="{{ category }}" 
+                                        {% if selected_category == category %}selected{% endif %}>
+                                    {{ category }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="muscle_group" class="form-label">Muscle Group</label>
+                        <select name="muscle_group" id="muscle_group" class="form-select">
+                            <option value="">All Muscle Groups</option>
+                            {% for muscle_group in muscle_groups %}
+                                <option value="{{ muscle_group }}" 
+                                        {% if selected_muscle_group == muscle_group %}selected{% endif %}>
+                                    {{ muscle_group }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-gradient me-2">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                        <a href="{{ url_for('exercises') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control" id="search-input" 
+                       placeholder="Search exercises by name, muscle group, or category...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise Count -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <p class="text-muted">
+                <i class="fas fa-info-circle"></i> 
+                Showing <span id="exercise-count">{{ exercises | length }}</span> exercises
+                {% if selected_category or selected_muscle_group %}
+                    (filtered)
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Exercises Grid -->
+    <div class="row" id="exercises-container">
+        {% if exercises %}
+            {% for exercise in exercises %}
+                <div class="col-lg-4 col-md-6 mb-4 exercise-item" 
+                     data-name="{{ exercise.name.lower() }}"
+                     data-category="{{ exercise.category.lower() }}"
+                     data-muscle="{{ exercise.muscle_group.lower() }}">
+                    <div class="card exercise-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">{{ exercise.name }}</h6>
+                            <span class="badge bg-primary">{{ exercise.difficulty }}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <span class="badge badge-custom me-1">
+                                    <i class="fas fa-tag"></i> {{ exercise.category }}
+                                </span>
+                                <span class="badge badge-custom">
+                                    <i class="fas fa-muscle"></i> {{ exercise.muscle_group }}
+                                </span>
+                            </div>
+                            
+                            {% if exercise.equipment != 'None' %}
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-tools"></i> 
+                                    <strong>Equipment:</strong> {{ exercise.equipment }}
+                                </p>
+                            {% endif %}
+                            
+                            {% if exercise.instructions %}
+                                <p class="card-text">
+                                    {{ exercise.instructions[:100] }}
+                                    {% if exercise.instructions | length > 100 %}...{% endif %}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-outline-primary btn-sm" 
+                                        onclick="viewExerciseDetails('{{ exercise.id }}')">
+                                    <i class="fas fa-eye"></i> Details
+                                </button>
+                                <button class="btn btn-gradient btn-sm" 
+                                        onclick="addToWorkout('{{ exercise.id }}', '{{ exercise.name }}')">
+                                    <i class="fas fa-plus"></i> Add to Workout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No exercises found</h4>
+                    <p class="text-muted">
+                        {% if selected_category or selected_muscle_group %}
+                            Try adjusting your filters or 
+                        {% endif %}
+                        <a href="{{ url_for('add_exercise') }}">add a new exercise</a>.
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- No results message (initially hidden) -->
+    <div id="no-results" class="text-center py-5" style="display: none;">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No exercises match your search</h4>
+        <p class="text-muted">Try different keywords or clear your search.</p>
+    </div>
+</div>
+
+<!-- Exercise Details Modal -->
+<div class="modal fade" id="exerciseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exerciseModalTitle">Exercise Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="exerciseModalBody">
+                <!-- Exercise details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-gradient" id="addToWorkoutBtn">
+                    <i class="fas fa-plus"></i> Add to Workout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Search functionality
+document.getElementById('search-input').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const exercises = document.querySelectorAll('.exercise-item');
+    const container = document.getElementById('exercises-container');
+    const noResults = document.getElementById('no-results');
+    const countElement = document.getElementById('exercise-count');
+    let visibleCount = 0;
+
+    exercises.forEach(exercise => {
+        const name = exercise.dataset.name;
+        const category = exercise.dataset.category;
+        const muscle = exercise.dataset.muscle;
+        
+        const matches = name.includes(searchTerm) || 
+                       category.includes(searchTerm) || 
+                       muscle.includes(searchTerm);
+        
+        if (matches) {
+            exercise.style.display = 'block';
+            visibleCount++;
+        } else {
+            exercise.style.display = 'none';
+        }
+    });
+
+    countElement.textContent = visibleCount;
+    
+    if (visibleCount === 0) {
+        container.style.display = 'none';
+        noResults.style.display = 'block';
+    } else {
+        container.style.display = 'flex';
+        noResults.style.display = 'none';
+    }
+});
+
+// Exercise details modal
+async function viewExerciseDetails(exerciseId) {
+    try {
+        // For now, we'll show a simple modal. In a real app, you'd fetch from an API
+        const exerciseCard = document.querySelector(`[onclick="viewExerciseDetails('${exerciseId}')"]`).closest('.card');
+        const name = exerciseCard.querySelector('h6').textContent;
+        const category = exerciseCard.querySelector('.badge:nth-of-type(1)').textContent.replace('🏷️ ', '');
+        const muscleGroup = exerciseCard.querySelector('.badge:nth-of-type(2)').textContent.replace('💪 ', '');
+        const difficulty = exerciseCard.querySelector('.badge.bg-primary').textContent;
+        
+        document.getElementById('exerciseModalTitle').textContent = name;
+        document.getElementById('exerciseModalBody').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Exercise Information</h6>
+                    <p><strong>Category:</strong> ${category}</p>
+                    <p><strong>Muscle Group:</strong> ${muscleGroup}</p>
+                    <p><strong>Difficulty:</strong> ${difficulty}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Instructions</h6>
+                    <p>Detailed instructions for performing this exercise safely and effectively.</p>
+                </div>
+            </div>
+        `;
+        
+        // Set up the add to workout button
+        document.getElementById('addToWorkoutBtn').onclick = () => {
+            addToWorkout(exerciseId, name);
+            bootstrap.Modal.getInstance(document.getElementById('exerciseModal')).hide();
+        };
+        
+        new bootstrap.Modal(document.getElementById('exerciseModal')).show();
+    } catch (error) {
+        showToast('Error loading exercise details', 'danger');
+    }
+}
+
+// Add to workout functionality
+function addToWorkout(exerciseId, exerciseName) {
+    // Store in sessionStorage to be picked up by workout page
+    let workoutExercises = JSON.parse(sessionStorage.getItem('workoutExercises') || '[]');
+    
+    // Check if exercise is already added
+    if (!workoutExercises.find(ex => ex.id === exerciseId)) {
+        workoutExercises.push({
+            id: exerciseId,
+            name: exerciseName
+        });
+        sessionStorage.setItem('workoutExercises', JSON.stringify(workoutExercises));
+        showToast(`${exerciseName} added to workout!`, 'success');
+    } else {
+        showToast(`${exerciseName} is already in your workout`, 'warning');
+    }
+}
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    // Add tooltips to buttons
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}
